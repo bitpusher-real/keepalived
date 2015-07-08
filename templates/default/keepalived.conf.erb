@@ -80,3 +80,22 @@ vrrp_instance <%= name.upcase %> {
   <% end %>
 }
 <% end -%>
+
+<% node['keepalived']['virtual_servers'].each_pair do |name, server| -%>
+virtual_server <%= server['hostname'] %> <%= server['port'] %> {
+  <% server['flags'].each do |flag| %>
+  <%= flag %>
+  <% end %>
+  <% server['options'].each_pair do |option_name, option_value| %>
+  <%= option_name %> <%= option_value %>
+  <% end %>
+
+  <% server['real_servers'].each_pair do |server_name, server| %>
+  real_server <%= server['hostname'] %> <%= server['port'] %> {
+    TCP_CHECK {
+      connect_timeout 5
+    }
+  }
+  <% end %>
+}
+<% end %>
